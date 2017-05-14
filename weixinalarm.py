@@ -16,20 +16,21 @@ def get_access_token(cid,sct):
     res_data = urllib2.urlopen(access_token_url)
     access_token=json.loads(res_data.read())["access_token"]
     return access_token
-    
-if os.environ.get("access_token",None):
-    print os.environ["access_token"]
-    timestamp=os.environ["access_token"].split("^")[1]
-    if timestamp-time.time() <7200:
-        access_token=os.environ["access_token"].split("^")[0]
-    else:
-        access_token=get_access_token(corpid,secrect)
+if os.path.exists("/tmp/weixinalarm"):
+    with open("/tmp/weixinalarm","r+") as fd:
+	result_info=fd.read().split("^")
+        timestamp=result_info[1]
+        if time.time()-int(timestamp) <7200:
+            access_token=result_info[0]
+        else:
+            access_token=get_access_token(corpid,secrect)
 else:
+    print "file is not exists"
     access_token=get_access_token(corpid,secrect)
     timestamp=time.time()
     tokentime=access_token+"^"+str(timestamp).split(".")[0]
-    os.environ["access_token"]=tokentime
-    print os.environ["access_token"]
+    with open("/tmp/weixinalarm","w") as fd:
+        fd.write(tokentime)
 send_url="https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token="+access_token
 send_info={
 		"touser" : "@all",
