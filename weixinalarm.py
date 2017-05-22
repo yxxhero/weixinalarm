@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python
 # encoding: utf-8
 # -*- coding: utf8 -*-
 import urllib
@@ -9,8 +9,6 @@ import time
 import os
 reload(sys)
 sys.setdefaultencoding('utf8')
-corpid="ww3a7da140a1da4c3b"
-secrect="UEhNijhPIWshadnfGEPpg9xBNyauHgf3uWQXQvG6-Mk"
 class weixinalarm:
     def __init__(self,corpid,secrect):
         self.corpid=corpid
@@ -39,21 +37,25 @@ class weixinalarm:
             with open("/tmp/weixinalarm","w") as fd:
                 fd.write(tokentime)
 	    return access_token
-    def sendmsg(self):
+    def sendmsg(self,title,description):
 	access_token=self.check_token()
         send_url="https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token="+access_token
         send_info={
 		"touser" : "@all",
-		"msgtype" : "text",
-		"agentid" : 1000003,
-		"text" : {
-			"content":"娱乐站报警"
-			}
+		"msgtype" : "news",
+		"agentid" : 1000004,
+                "news":{
+                "articles" : [
+                 {
+               "title" : title,
+               "description" : description,
+               "url" : "http://www.yslongbi.com/category/star_news/?starId=22",
+               "picurl" : "http://bimg.tubaba.com.cn/http://img5.imgtn.bdimg.com/it/u=3850328790,3088893369&fm=23&gp=0.jpg"
+                   }
+                 ]
+                 }
 		}
         send_info_urlencode = json.dumps(send_info,ensure_ascii=False)
         req=urllib2.Request(url = send_url,data =send_info_urlencode)
         response=urllib2.urlopen(req)
         res_info=response.read()
-        print res_info
-weixinsender=weixinalarm(corpid=corpid,secrect=secrect)
-weixinsender.sendmsg()
