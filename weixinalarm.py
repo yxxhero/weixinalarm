@@ -7,17 +7,29 @@ import json
 import sys
 import time
 import os
+import logging
 reload(sys)
 sys.setdefaultencoding('utf8')
+#日志模式初始化
+logging.basicConfig(level="DEBUG",
+                format='%(asctime)s  %(levelname)s %(message)s',
+                datefmt='%Y-%m-%d %H:%M:%S',
+                filename='./log/dark_status.log',
+                filemode='a')
 class weixinalarm:
     def __init__(self,corpid,secrect):
         self.corpid=corpid
 	self.secrect=secrect
     def get_access_token(self):
         access_token_url="https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid="+self.corpid+"&corpsecret="+self.secrect
-        res_data = urllib2.urlopen(access_token_url)
-        access_token=json.loads(res_data.read())["access_token"]
-        return access_token
+        try:
+            res_data = urllib2.urlopen(access_token_url,timeout=3)
+            access_token=json.loads(res_data.read())["access_token"]
+        except Exception,e:
+            logging.info("access_token获取超时")
+            return None 
+        else:
+            return access_token
     def check_token(self):
         if os.path.exists("/tmp/weixinalarm"):
             with open("/tmp/weixinalarm","r+") as fd:
@@ -30,7 +42,6 @@ class weixinalarm:
                     access_token=self.get_access_token()
 		    return access_token
         else:
-            print "file is not exists"
             access_token=self.get_access_token()
             timestamp=time.time()
             tokentime=access_token+"^"+str(timestamp).split(".")[0]
@@ -38,24 +49,27 @@ class weixinalarm:
                 fd.write(tokentime)
 	    return access_token
     def sendmsg(self,title,description):
-	access_token=self.check_token()
-        send_url="https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token="+access_token
-        send_info={
-		"touser" : "@all",
-		"msgtype" : "news",
-		"agentid" : 1000004,
-                "news":{
-                "articles" : [
-                 {
-               "title" : title,
-               "description" : description,
-               "url" : "http://www.yslongbi.com/category/star_news/?starId=22",
-               "picurl" : "http://bimg.tubaba.com.cn/http://img5.imgtn.bdimg.com/it/u=3850328790,3088893369&fm=23&gp=0.jpg"
-                   }
-                 ]
-                 }
-		}
-        send_info_urlencode = json.dumps(send_info,ensure_ascii=False)
-        req=urllib2.Request(url = send_url,data =send_info_urlencode)
-        response=urllib2.urlopen(req)
-        res_info=response.read()
+        try:
+	    access_token=self.check_token()
+            if access_token:
+                send_url="https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token="+access_token
+                send_info={
+	        	"touser" : "@all",
+	        	"msgtype" : "text",
+	        	"agentid" : 1000005,
+                "text":{
+                    "content":str(title)+":"+str(description)
+                    }
+	        	}
+                logging.info(send_info)
+                send_info_urlencode = json.dumps(send_info,ensure_ascii=False)
+                req=urllib2.Request(url = send_url,data =send_info_urlencode)
+                response=urllib2.urlopen(req,timeout=1)
+                res_info=response.read()
+            else:
+                logging.error("no access_token")
+        except Exception,e:
+            logging.error(str(e))
+        else:
+            logging.info(res_info)
+            logging.info("报警正常")
