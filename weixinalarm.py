@@ -30,6 +30,10 @@ class weixinalarm:
             return None 
         else:
             return access_token
+        finally:
+            if res_data:
+                res_data.close()
+                                      
     def check_token(self):
         if os.path.exists("/tmp/weixinalarm"):
             with open("/tmp/weixinalarm","r+") as fd:
@@ -73,3 +77,6 @@ class weixinalarm:
         else:
             logging.info(res_info)
             logging.info("报警正常")
+        finally:
+            if response:
+                response.close()
