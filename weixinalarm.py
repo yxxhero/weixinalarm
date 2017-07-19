@@ -30,10 +30,6 @@ class weixinalarm:
             return None 
         else:
             return access_token
-        finally:
-            if res_data:
-                res_data.close()
-                                      
     def check_token(self):
         if os.path.exists("/tmp/weixinalarm"):
             with open("/tmp/weixinalarm","r+") as fd:
@@ -44,6 +40,10 @@ class weixinalarm:
 		    return access_token
                 else:
                     access_token=self.get_access_token()
+                    timestamp=time.time()
+                    tokentime=access_token+"^"+str(timestamp).split(".")[0]
+                    with open("/tmp/weixinalarm","w") as fd:
+                        fd.write(tokentime)
 		    return access_token
         else:
             access_token=self.get_access_token()
@@ -68,7 +68,7 @@ class weixinalarm:
                 logging.info(send_info)
                 send_info_urlencode = json.dumps(send_info,ensure_ascii=False)
                 req=urllib2.Request(url = send_url,data =send_info_urlencode)
-                response=urllib2.urlopen(req,timeout=1)
+                response=urllib2.urlopen(req,timeout=3)
                 res_info=response.read()
             else:
                 logging.error("no access_token")
