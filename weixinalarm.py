@@ -19,8 +19,8 @@ logging.basicConfig(level="DEBUG",
 class weixinalarm(object):
     def __init__(self,corpid,secrect,agentid):
         self.corpid=corpid
-	self.secrect=secrect
-	self.agentid=agentid
+        self.secrect=secrect
+        self.agentid=agentid
     def get_access_token(self):
         access_token_url="https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid="+self.corpid+"&corpsecret="+self.secrect
         try:
