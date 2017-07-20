@@ -16,10 +16,11 @@ logging.basicConfig(level="DEBUG",
                 datefmt='%Y-%m-%d %H:%M:%S',
                 filename='./log/dark_status.log',
                 filemode='a')
-class weixinalarm:
-    def __init__(self,corpid,secrect):
+class weixinalarm(object):
+    def __init__(self,corpid,secrect,agentid):
         self.corpid=corpid
 	self.secrect=secrect
+	self.agentid=agentid
     def get_access_token(self):
         access_token_url="https://qyapi.weixin.qq.com/cgi-bin/gettoken?corpid="+self.corpid+"&corpsecret="+self.secrect
         try:
@@ -60,7 +61,7 @@ class weixinalarm:
                 send_info={
 	        	"touser" : "@all",
 	        	"msgtype" : "text",
-	        	"agentid" : 1000005,
+	        	"agentid" : self.agentid,
                 "text":{
                     "content":str(title)+":"+str(description)
                     }
