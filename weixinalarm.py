@@ -27,6 +27,7 @@ class weixinalarm(object):
             res_data = urllib2.urlopen(access_token_url,timeout=3)
             access_token=json.loads(res_data.read())["access_token"]
         except Exception,e:
+            logging.info(str(e))
             logging.info("access_token获取超时")
             return None 
         else:
@@ -67,7 +68,8 @@ class weixinalarm(object):
                     }
 	        	}
                 logging.info(send_info)
-                send_info_urlencode = json.dumps(send_info,ensure_ascii=False)
+                send_info_urlencode = json.dumps(send_info)
+                #send_info_urlencode = json.dumps(send_info,ensure_ascii=False)
                 req=urllib2.Request(url = send_url,data =send_info_urlencode)
                 response=urllib2.urlopen(req,timeout=3)
                 res_info=response.read()
@@ -76,8 +78,11 @@ class weixinalarm(object):
         except Exception,e:
             logging.error(str(e))
         else:
-            logging.info(res_info)
-            logging.info("报警正常")
+            alarm_result=json.loads(res_info)
+            if int(alarm_result["errcode"])==0:
+                logging.info("报警正常")
+            else:
+                logging.info(alarm_result["errmsg"])
         finally:
             if response:
                 response.close()
