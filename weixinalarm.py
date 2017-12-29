@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
 # -*- coding: utf8 -*-
-import urllib
 import urllib2
+import hashlib
 import json
 import sys
 import time
@@ -33,8 +33,8 @@ class weixinalarm(object):
         else:
             return access_token
     def check_token(self):
-        if os.path.exists("/tmp/weixinalarm"):
-            with open("/tmp/weixinalarm","r+") as fd:
+        if os.path.exists("/tmp/"+str(self.Md5value())):
+            with open("/tmp/"+str(self.Md5value()),"r+") as fd:
 	        result_info=fd.read().split("^")
                 timestamp=result_info[1]
                 if time.time()-int(timestamp) <7200:
@@ -44,16 +44,20 @@ class weixinalarm(object):
                     access_token=self.get_access_token()
                     timestamp=time.time()
                     tokentime=access_token+"^"+str(timestamp).split(".")[0]
-                    with open("/tmp/weixinalarm","w") as fd:
+                    with open("/tmp/"+str(self.Md5value()),"w") as fd:
                         fd.write(tokentime)
 		    return access_token
         else:
             access_token=self.get_access_token()
             timestamp=time.time()
             tokentime=access_token+"^"+str(timestamp).split(".")[0]
-            with open("/tmp/weixinalarm","w") as fd:
+            with open("/tmp/"+str(self.Md5value()),"w") as fd:
                 fd.write(tokentime)
 	    return access_token
+    def Md5value(self):
+        m2 = hashlib.md5()
+        m2.update(str(self.agentid)+str(self.corpid)+str(self.secrect))
+        return m2.hexdigest()
     def sendmsg(self,title,description):
         try:
 	    access_token=self.check_token()
