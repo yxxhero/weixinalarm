@@ -100,6 +100,6 @@ class weixinalarm(object):
 
 
 if __name__ == "__main__":
-    wx_ins = weixinalarm('wx24dc164efd94b180',
-                         'pXQlHFcyRWRQzq3T4Hiy7MkTYP6ZpYrhRxfCZQuDZDU', 1000009)
+    wx_ins = weixinalarm('wx',
+                         'pXQlHFcyRWRQzq3T4HiP6ZpYrhRxfCZQuDZDU', 1000009)
     wx_ins.sendmsg("hah", "hah")
